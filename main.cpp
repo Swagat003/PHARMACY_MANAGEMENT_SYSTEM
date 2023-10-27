@@ -160,51 +160,181 @@ void welcome()
 void BuyMedicine()
 {
 	system("cls");
-	
+
 	char choose;
 	string getId = "";
 	string itemId[5000];
-    string itemName[5000];
-    char chooseEditOrBuy;
-    int itemIndex = 0;
-    float totalPrice = 0.0;
-    bool purchase, itemFalse = false;
-	
+	string itemName[5000];
+	int quantity[5000];
+	char chooseEditOrBuy;
+	int itemIndex = 0;
+	float totalPrice = 0.0;
+	bool purchase, itemFalse = false;
+	int storeIndexN = 0;
+	int qty;
+
 	welcome();
 	mtb->printData();
-	
-	for (itemIndex = 0;;itemIndex++)
-    {
-        cout << "Enter a Column ID's (q to exit): ";
-        cin >> getId;
-        if (getId == "q")
-        {
-            break;
-        }
-        else
-        {
-            for(int i = 0; i < storeIndex; i++)
-            {
-                if (getId == storeid[i])
-                {
-                    itemId[itemIndex] = getId;
-                    itemFalse = false;
-                    break;
-                }
-                else
-                {
-                    itemFalse = true;
-                }
-            }
-            if (itemFalse == true)
-            {
-                cout << "Enter a valid number." << endl;
-                itemIndex--;
-                itemFalse = false;
-            }
-        }
-    }
+	cout<<endl;
+	for (itemIndex = 0;; itemIndex++)
+	{
+		cout <<endl<< "Enter a Column ID's (q to exit): ";
+		cin >> getId;
+		
+		if (getId == "q")
+		{
+			break;
+		}
+		else
+		{
+			cout << "Enter a Quantity: ";
+			cin>>qty;
+			for (int i = 0; i < mtb->storeIndex; i++)
+			{
+				if (getId == mtb->storeid[i])
+				{
+					itemId[itemIndex] = getId;
+					itemName[itemIndex]=mtb->storename[i];
+					quantity[itemIndex]=qty;
+					itemFalse = false;
+					break;
+				}
+				else
+				{
+					itemFalse = true;
+				}
+			}
+			if (itemFalse == true)
+			{
+				cout << "Enter a valid number." << endl;
+				itemIndex--;
+				itemFalse = false;
+			}
+		}
+	}
 
+	cout << "You choose this item id's: ";
+	for (int i = 0; i < itemIndex; i++)
+	{
+		cout <<endl<<"\t"<< itemName[i] << " X "<<quantity[i];
+	}
+
+CHOOSEEDITORBUY:
+	cout << endl
+		 << "Do you want to edit items(e) or buy this items(b): ";
+	cin >> chooseEditOrBuy;
+
+	if (chooseEditOrBuy == 'e')
+	{
+		for (int i = 0;; i++)
+		{
+			cout << "Remove item id's (q to exit): ";
+			cin >> getId;
+			if (getId == "q")
+			{
+				break;
+			}
+			else
+			{
+				for (int j = 0; j < itemIndex; j++)
+				{
+					if (itemId[j] == getId)
+					{
+						for (int k = j; k < itemIndex; k++)
+						{
+							itemId[k] = itemId[k + 1];
+							itemName[k]=itemName[k+1];
+							quantity[k]=quantity[k+1];
+						}
+						itemId[itemIndex--] = "\0";
+						itemName[itemIndex] = "\0";
+						quantity[itemIndex] = 0;
+					}
+				}
+			}
+		}
+
+		cout << "You choose this Item id's: ";
+		for (int i = 0; i < itemIndex; i++)
+		{
+			cout <<endl<<"\t"<< itemName[i] << " X "<<quantity[i];
+		}
+
+		goto CHOOSEEDITORBUY;
+	}
+	else if (chooseEditOrBuy == 'b')
+	{
+		for (int i = 0; i < itemIndex; i++)
+		{
+			for (int j = 0; j < mtb->storeIndex; j++)
+			{
+				if (itemId[i] == mtb->storeid[j])
+				{
+					qstate = mysql_query(conn, "select quantity from madicine_tb");
+					if (!qstate)
+					{
+						res = mysql_store_result(conn);
+						while ((row = mysql_fetch_row(res)))
+						{
+							if (atoi(row[0]) > 0)
+							{
+								mtb->storequantity[storeIndexN] = row[0];
+								storeIndexN++;
+							}
+						}
+						storeIndexN = 0;
+					}
+					else
+					{
+						cout << "Query Execution Problem!" << mysql_errno(conn) << endl;
+					}
+
+					totalPrice += (strtof((mtb->storeprice[j]).c_str(), 0))*quantity[i];
+
+					float quan1 = strtof((mtb->storequantity[j]).c_str(), 0);
+					quan1 -= 1*quantity[i];
+					float quan2 = strtof((mtb->storequantity[j]).c_str(), 0);
+					float quan = quan2 - quan1;
+					string getResult;
+					stringstream strquan;
+					strquan << quan;
+					strquan >> getResult;
+
+					string getQuan1;
+					stringstream strquan1;
+					strquan1 << quan1;
+					strquan1 >> getQuan1;
+
+					purchase = true;
+
+					string update_query = "update madicine_tb set quantity = '" + getQuan1 + "' where id = '" + mtb->storeid[j] + "'";
+					const char *qu = update_query.c_str();
+
+					qstate = mysql_query(conn, qu);
+
+					if (qstate)
+					{
+						cout << "Failed To Update!" << mysql_errno(conn) << endl;
+					}
+				}
+			}
+		}
+
+		if (purchase == true)
+		{
+			cout << endl
+				 << "Purchase Successfully Done." << endl;
+			cout << endl
+				 << "Total Price: " << totalPrice << endl;
+		}
+	}
+	mtb->getData();
+
+	Sleep(1000);
+	cout << endl
+		 << "Press Any Key To Continue...";
+	getch();
+	system("cls");
 }
 
 void ShowItemList()
@@ -317,7 +447,8 @@ ExitMenu:
 		cout << "Arrival Date: " << mtb->storearrival_date[itemIndex] << endl;
 		cout << "Expire Date: " << mtb->storeexpire_date[itemIndex] << endl;
 		cout << "Price: " << mtb->storeprice[itemIndex] << endl;
-		cout << "Quantity: " << mtb->storequantity[itemIndex] << endl<<endl;
+		cout << "Quantity: " << mtb->storequantity[itemIndex] << endl
+			 << endl;
 
 		cin.ignore(1, '\n');
 		string defaultString = "NA";
