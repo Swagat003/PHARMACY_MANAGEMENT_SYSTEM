@@ -50,7 +50,7 @@ public:
 	}
 };
 
-class madicine_tb
+class medicine_tb
 {
 public:
 	string storeid[5000];
@@ -65,7 +65,7 @@ public:
 	void getData();
 	void printData();
 };
-madicine_tb *mtb = new madicine_tb();
+medicine_tb *mtb = new medicine_tb();
 
 // Other functions
 void welcome();
@@ -270,7 +270,7 @@ CHOOSEEDITORBUY:
 			{
 				if (itemId[i] == mtb->storeid[j])
 				{
-					qstate = mysql_query(conn, "select quantity from madicine_tb");
+					qstate = mysql_query(conn, "select quantity from medicine_tb");
 					if (!qstate)
 					{
 						res = mysql_store_result(conn);
@@ -307,7 +307,7 @@ CHOOSEEDITORBUY:
 
 					purchase = true;
 
-					string update_query = "update madicine_tb set quantity = '" + getQuan1 + "' where id = '" + mtb->storeid[j] + "'";
+					string update_query = "update medicine_tb set quantity = '" + getQuan1 + "' where id = '" + mtb->storeid[j] + "'";
 					const char *qu = update_query.c_str();
 
 					qstate = mysql_query(conn, qu);
@@ -367,7 +367,7 @@ void AddIteminStock()
 	cout << "Enter Quantity: ";
 	cin >> qt;
 
-	string query = "INSERT INTO madicine_tb (Name , Company, Arrival_date, expire_date, price, quantity) VALUES ('" + name + "','" + company + "','" + arv_dt + "','" + exp_dt + "','" + prc + "','" + qt + "' )";
+	string query = "INSERT INTO medicine_tb (Name , Company, Arrival_date, expire_date, price, quantity) VALUES ('" + name + "','" + company + "','" + arv_dt + "','" + exp_dt + "','" + prc + "','" + qt + "' )";
 	if (mysql_query(conn, query.c_str()))
 	{
 		cout << mysql_error(conn) << endl;
@@ -489,7 +489,7 @@ ExitMenu:
 			quantity = mtb->storequantity[itemIndex];
 		}
 
-		string update_query = "update madicine_tb set name = '" + name + "', company = '" + company + "', arrival_date = '" + arrival_date + "', expire_date = '" + expire_date + "', price = '" + price + "', quantity = '" + quantity + "' where id = '" + mtb->storeid[itemIndex] + "'";
+		string update_query = "update medicine_tb set name = '" + name + "', company = '" + company + "', arrival_date = '" + arrival_date + "', expire_date = '" + expire_date + "', price = '" + price + "', quantity = '" + quantity + "' where id = '" + mtb->storeid[itemIndex] + "'";
 		const char *qu = update_query.c_str();
 		qstate = mysql_query(conn, qu);
 
@@ -526,7 +526,7 @@ void DeleteStockItem()
 		 << "Enter ID to delete: ";
 	cin >> id;
 
-	string query = "DELETE FROM madicine_tb WHERE ID = '" + id + "'";
+	string query = "DELETE FROM medicine_tb WHERE ID = '" + id + "'";
 	if (mysql_query(conn, query.c_str()))
 	{
 		cout << mysql_error(conn) << endl;
@@ -540,11 +540,11 @@ void DeleteStockItem()
 	Sleep(2000);
 }
 
-void madicine_tb::getData()
+void medicine_tb::getData()
 {
 	sl = 1;
 	storeIndex = sl - 1;
-	qstate = mysql_query(conn, "select * from madicine_tb");
+	qstate = mysql_query(conn, "select * from medicine_tb");
 	if (!qstate)
 	{
 		res = mysql_store_result(conn);
@@ -569,10 +569,10 @@ void madicine_tb::getData()
 	}
 }
 
-void madicine_tb::printData()
+void medicine_tb::printData()
 {
 	getData();
-	qstate = mysql_query(conn, "select * from madicine_tb");
+	qstate = mysql_query(conn, "select * from medicine_tb");
 	if (!qstate)
 	{
 		res = mysql_store_result(conn);
