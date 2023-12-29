@@ -15,7 +15,7 @@ using namespace std;
 
 const char *HOST = "localhost";
 const char *USER = "root";
-const char *PASSW = "password";
+const char *PASSW = "password"; 
 const char *DB = "pharmacy";
 
 // mysql connection variables
@@ -559,7 +559,7 @@ void medicine_tb::getData()
 				storeexpire_date[storeIndex] = row[4];
 				storeprice[storeIndex] = row[5];
 				storequantity[storeIndex] = row[6];
-				storeIndex++;
+				storeIndex++; 
 			}
 		}
 	}
